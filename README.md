@@ -54,8 +54,7 @@ Constraints:
 - It must have between 3 and 6 bullet points.
 - Capture the main ideas, key conclusions and Important facts.
 
-  Text input:
-
+  text input:
   Gabriel de Clieu brought coffee seedlings to Martinique in the Caribbean in 1720.
   Those sprouts flourished and 50 years later there were 18,680 coffee trees in Martinique enabling the spread of coffee cultivation to Saint-Domingue (Haiti), Mexico and other islands of the Caribbean.
   The French territory of Saint-Domingue saw coffee cultivated starting in 1734, and by 1788 supplied half the world's coffee.
