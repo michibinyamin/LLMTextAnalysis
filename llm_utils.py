@@ -1,4 +1,5 @@
 import openai
+import re
     
 def get_completion(user_text, system_instruction, api_key, model="gpt-4o-mini", temperature=0.3, max_tokens=500):
     """Sends a System prompt (rules) and User prompt (data) to OpenAI."""
@@ -23,10 +24,39 @@ def summarize_text(text, api_key):
     Constraints:
     - The output must be a bulleted list.
     - It must have between 3 and 6 bullet points.
-    - Capture the main ideas and key conclusions.
+    - Capture the main ideas, key conclusions and Important facts.
     """
-    #return get_completion(prompt, api_key)
-    return get_completion(text, system_instruction, api_key, temperature=0.3, max_tokens=300)
+    pattern = r'^([\-\*\•] .+\n){2,5}[\-\*\•] .+$'  # Regex to check for 3 to 6 bullet points!
+
+    response = get_completion(text, system_instruction, api_key, temperature=0.3, max_tokens=300)
+
+    if not re.match(pattern, response):
+        for _ in range(2):  # Retry up to 2 times
+            print("Fixing bullet format... attempt", _ + 1)
+
+            # Include both original text and previous summary for context
+            fix_prompt = f"""
+            The original text is:
+
+            {text}
+
+            Your previous summary was:
+
+            {response}
+
+            It did not follow the bullet format correctly. 
+            Please rewrite it so it has between 3 and 6 bullet points, 
+            each starting with -, *, or • while capturing the main ideas and key conclusions.
+            """
+            response = get_completion(fix_prompt, system_instruction, api_key, temperature=0.3, max_tokens=300)
+            if re.match(pattern, response):
+                print ("Successful response.")
+                return response
+        print("Failed to get correct bulleted format after retries.")
+        return "Error: Unable to generate summary in the required bulleted format."
+    else:
+        print ("Successful response.")
+        return response
 
 
 # --- Use Case 2 Logic ---
