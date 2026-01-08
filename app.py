@@ -1,5 +1,18 @@
 import streamlit as st
+from PyPDF2 import PdfReader
 from llm_utils import summarize_text, extract_topics, classify_intent
+import json
+
+def load_samples():
+    """Load sample texts from the JSON file."""
+    try:
+        with open("samples.JSON", "r") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return {} # Return empty if file is missing
+
+# Load the data once when app starts
+SAMPLES = load_samples()
 
 # --- Page Config ---
 st.set_page_config(
@@ -33,13 +46,35 @@ else:
         st.subheader("📝 Summarize Long Text")
         st.markdown("*Goal: Create a clear, concise summary of long text.*")
         
-        # Requirement: Input text provided by user
-        input_text = st.text_area("Enter text (min 500 words recommended):", height=300)
+        # Sample texts from public sources (e.g., Wikipedia, NASA)
+        SAMPLE_TEXTS = {
+            "None": "",
+            "Space Exploration (NASA)": """NASA's Artemis program is the first step in the next era of human exploration. Together with commercial and international partners, NASA will establish a sustainable presence on the Moon to prepare for missions to Mars. Through Artemis, NASA will land the first woman and the first person of color on the Moon... [You would paste the full 500 words here]""",
+            "History of Computing": """The history of computing is longer than the history of computing hardware and modern computing technology and includes the history of methods intended for pen and paper or for chalk and slate... [Paste full text here]"""
+        }
+
+        # Feature: Select from Public Dataset
+        selected_sample = st.selectbox("Load a sample text:", options=list(SAMPLES["summarize"].keys()))
+
+        # Logic: If a sample is picked, use it. Otherwise, leave blank.
+        if selected_sample != "None":
+            default_text = SAMPLES["summarize"][selected_sample]
+        else:
+            default_text = ""
+
+        # The text area pre-fills with the sample if selected
+        input_text = st.text_area("Enter text or edit sample:", value=default_text, height=300)
         
         # Requirement: Option to load from file
-        uploaded_file = st.file_uploader("Or upload a text file (.txt):", type=["txt"])
+        uploaded_file = st.file_uploader("upload a text / pdf file (.txt / .pdf):", type=["txt", "pdf"])
         if uploaded_file is not None:
-            input_text = uploaded_file.read().decode("utf-8")
+            if uploaded_file.type == "application/pdf":
+                reader = PdfReader(uploaded_file)
+                input_text = ""
+                for page in reader.pages:
+                    input_text += page.extract_text() + "\n"
+            else:   # assume txt file
+                input_text = uploaded_file.read().decode("utf-8")
             st.info("File loaded successfully!")
 
         if st.button("Generate Summary"):
