@@ -348,6 +348,8 @@ _Token Limit:_ max_tokens=50 – Since the output is a single label (2-3 words m
 
 _Temperature:_ temperature=0.2 – Keeps the model deterministic. We want the single most probable label, not a creative interpretation of the user's request.
 
+### Examples :
+
 **Potential Confusion case example:**  
 Input :
 
