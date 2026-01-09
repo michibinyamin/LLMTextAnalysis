@@ -1,5 +1,26 @@
 # LLMTextAnalysis
 
+## Design Decisions
+
+### Model Selection
+
+I have chosen gpt-4o-mini model for the following reasons:
+
+- _Sufficient Capability:_ The required use cases—summarization , topic extraction , and intent classification —are standard Natural Language Understanding (NLU) tasks.  
+   They do not require the complex reasoning of flagship models, making gpt-4o-mini more than enough to deliver high-quality results.
+
+- _Cost & Speed:_ It offers the best balance of low latency and cost efficiency, which is critical for a responsive user application where the user expects immediate output.
+
+### Prompt Strategy
+
+I utilized a Structured, Component-Based approach encapsulated within a System Prompt.
+
+- _System Prompt:_ All instructions are passed as a system message (rather than a user message) to enforce the model's persona and rules globally for the interaction.
+
+- _Logical Partitioning:_ The prompt is divided into clear Markdown sections (### Role, ### Constraints) to separate behavioral instructions from formatting rules.
+
+- _Data Separation:_ I strictly placed the user's content at the end, separated by an ### Input Text header and delimiters ("""). This prevents "Prompt Injection" by clearly distinguishing the data to be processed from the instructions.
+
 ## Use Case 1 - Summarize Long Text
 
 **parameters**:  
@@ -277,3 +298,33 @@ output:
         Complaint (Confidence: 86.16%)
 
 two percentages down and it would have been classified as "Unclassified"!
+
+## Qualitative Analysis
+
+### What Works Well
+
+- **Strong Constraint Enforcement:**  
+   Using a strict system prompt together with regex checks in code does a good job of keeping outputs in the required format  
+   (for example, exact bullet counts or word limits). This avoids extra manual cleanup later.
+
+- **Self-Correcting Feedback Loop:**  
+   The retry mechanism in the Topic Extraction flow—where formatting errors are fed back to the model—works well in practice.  
+   Most formatting issues are resolved on the second attempt, which noticeably improves reliability.
+
+- **Fast and Cheap:**  
+   Running gpt-4o-mini gives fast responses that feel real-time, while keeping costs very low.  
+   This makes it a practical choice for interactive use.
+
+### Future Improvements
+
+- **Native JSON Mode:**  
+   Moving to structured JSON outputs would remove formatting errors altogether and  
+   make the retry logic unnecessary and would give a more reliable structured output.
+
+- **Specialized Classifier (BERT for example):**  
+   For Use Case 3, replacing the generative LLM with a fine-tuned classification model could  
+   improve accuracy for fixed categories and significantly reduce inference time and cost at scale.
+
+- **Dynamic Token Allocation:**  
+   Instead of fixed token limits, dynamically adjusting the limit based on input length would  
+  reduce the risk of truncation while still preventing overly verbose outputs.
