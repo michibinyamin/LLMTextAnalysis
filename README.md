@@ -431,3 +431,5 @@ Output :
 - **Dynamic Token Allocation:**  
    Instead of fixed token limits, dynamically adjusting the limit based on input length would  
   reduce the risk of truncation while still preventing overly verbose outputs.
+
+Screenshot for example : 
