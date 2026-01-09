@@ -6,13 +6,22 @@
 *temperature=0.3,  
 *max_tokens*=300*
 
-**system prompt**:  
-You are an expert editor. Please provide a clear, concise summary of the following text.  
-Constraints:
+**system prompt**:
 
-- The output must be a bulleted list.
-- It must have between 3 and 6 bullet points.
-- Capture the main ideas, key conclusions and Important facts.
+        ## Role
+        You are an expert executive editor. Your goal is to synthesize the provided text into a clear, high-level summary.
+
+        ### Content Guidelines
+        - **Directness:** Use active voice. Avoid meta-talk like "The article discusses..." or "The author says...". Just state the facts.
+        - **Substance:** Prioritize conclusions, data points, and decisions over general descriptions.
+
+        ### Constraints
+        1. **Quantity:** Output strictly between 3 and 6 bullet points.
+        2. **Format:** Use standard bullet characters (-, *, or •).
+        3. **Length:** Each bullet must be 1 concise sentence (maximum 2).
+        4. **No Fluff:** Do not output any introductory text (e.g., "Here is the summary:") or closing remarks.
+
+        ### Input Text
 
 **How was the prompt designed:**  
 The summarize_text function uses a system prompt to instruct the LLM as an expert editor:  
@@ -81,3 +90,107 @@ while maintaining clarity.
 - The coffee industry faced challenges during World War II, leading to a U.S.-Latin American agreement that doubled coffee prices and benefited producers.
 - Brazil became the world's largest coffee producer by 1852, dominating global production until the emergence of other major producers like Colombia, Vietnam, and Ethiopia in the latter half of the 20th century.
 - The rise of sugary coffee drinks has allowed coffee houses to use cheaper beans, impacting the quality and market dynamics of coffee.
+
+## Use Case 2 - Extract Key Topics
+
+**parameters**:  
+_temperature=0.2,  
+max_tokens=150_
+
+system prompt:
+
+    ### Role
+    You are an expert content analyzer. Your task is to extract the main topics from the text provided.
+
+    ### Definition of a Topic
+    A Topic is a concise **noun phrase** (1-3 words) that categorizes a significant theme in the text.
+    It must be specific (e.g., use "Network Latency" instead of just "Issues").
+
+    ### Constraints
+    1. **Quantity:** Return between 3 and 7 topics.
+    2. **Length:** Strictly 1-3 words per topic.
+    3. **Uniqueness:** Compare topics before outputting. Merge semantically similar concepts (e.g., 'Cost' and 'Price' -> 'Pricing Strategy').
+    4. **Format:** Output ONLY a bulleted list (using -, *, or •).
+    5. **No Fluff:** Do not include introductory text (e.g., "Here are the topics") or closing remarks.
+
+    ### Input Text
+
+**How was the prompt designed:**  
+The extract_topics function treats the LLM as a "Content Analyzer." The key to this design is the Definition of a Topic section. By explicitly defining a topic as a "concise noun phrase," we prevent the model from outputting verbs or full sentences.
+
+Specificity: It explicitly asks for specific terms (e.g., "Network Latency") rather than generic ones, ensuring high-quality tagging.
+
+Semantic Merging: The prompt instructs the model to compare topics internally and merge synonyms (Cost vs. Price), reducing redundancy before the text is even generated.
+
+**How Quality and Consistency Are Controlled:**  
+_Strict Validation Logic:_  
+Unlike simple summarization, topic extraction requires strict formatting.  
+The Python code validates the output against three specific rules:
+
+- Bullet Count: Must be between 3 and 7 lines.
+- Word Count: Each line must contain only 1–3 words (regex-based check).
+- Duplication: A set-based check ensures no exact duplicates exist (case-insensitive).
+
+Automatic Retry Loop:  
+If any validation fails, the function enters a retry loop (max 3 attempts).  
+It constructs a dynamic fix_prompt that includes:
+
+- The original text.
+- The failed output.
+- Specific Error Messages: It **explicitly** tells the LLM why it failed (e.g., "Output contained duplicate topics" or "These topics were too long"). This "critique-and-refine" approach forces the model to self-correct based on precise feedback.
+
+Examples:
+Example 1: Technical Support Analysis
+Input Text:
+
+"We are seeing a significant drop in packet delivery speeds during peak hours. The server logs indicate high latency in the US-East region, specifically interacting with the load balancer. Users are complaining about timeouts and slow page loads. We checked the database, but read/write IOPS are within normal limits. It seems to be purely a network layer issue."
+
+Extracted Topics:
+
+Network Latency
+
+Packet Delivery
+
+Load Balancer
+
+Server Timeouts
+
+US-East Region
+
+Example 2: Health & Nutrition
+Input Text:
+
+"Regular cardiovascular exercise is essential for heart health, but nutrition plays an equally large role. Doctors recommend a diet rich in vegetables and low in saturated fats. Combining running with a balanced diet can significantly lower the risk of chronic disease and improve mental health."
+
+Extracted Topics:
+
+Heart Health
+
+Cardiovascular Exercise
+
+Nutrition
+
+Balanced Diet
+
+Chronic Disease
+
+Mental Health
+
+Example 3: Business/Financial
+Input Text:
+
+"The quarterly report shows a 15% increase in operational costs due to supply chain disruptions. However, revenue has grown by 10% thanks to the new subscription model. Investors are concerned about the shrinking profit margins, but the CEO assures that logistics will stabilize by Q3."
+
+Extracted Topics:
+
+Operational Costs
+
+Supply Chain
+
+Revenue Growth
+
+Subscription Model
+
+Profit Margins
+
+Investor Concerns
