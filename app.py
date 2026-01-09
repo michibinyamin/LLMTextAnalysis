@@ -109,9 +109,22 @@ else:
     elif analysis_type == "Classify Intent":
         st.subheader("🎯 Classify User Intent")
         st.markdown("*Goal: Categorize short user messages.*")
+        st.markdown("categories: 'Technical issue', 'Billing question', 'Feature request', 'Complaint', 'General inquiry'")
+
+        # Feature: Select from Dataset
+        selected_sample = st.selectbox("Load a sample text:", options=list(SAMPLES["intent"].keys()))
+        
+        # Logic: If a sample is picked, use it. Otherwise, leave blank.
+        if selected_sample != "None":
+            default_text = SAMPLES["intent"][selected_sample]
+        else:
+            default_text = ""
+
+        # The text area pre-fills with the sample if selected
+        #input_text = st.text_area("Enter text or edit sample:", value=default_text, height=300)
 
         # Requirement: Short messages (1-3 sentences)
-        input_text = st.text_input("Enter a user message:", placeholder="e.g., 'I want to cancel my subscription.'")
+        input_text = st.text_area("Enter a user message:", placeholder="e.g., 'I want to cancel my subscription.'",value=default_text, height=20)
 
         if st.button("Classify"):
             if input_text:
