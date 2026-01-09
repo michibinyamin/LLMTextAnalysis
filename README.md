@@ -116,11 +116,16 @@ system prompt:
     ### Input Text
 
 **How was the prompt designed:**  
-The extract_topics function treats the LLM as a "Content Analyzer." The key to this design is the Definition of a Topic section. By explicitly defining a topic as a "concise noun phrase," we prevent the model from outputting verbs or full sentences.
+_defining a "topic":_  
+The extract_topics function treats the LLM as a "Content Analyzer".  
+The key to this design is the Definition of a Topic section.  
+By explicitly defining a topic as a "concise noun phrase", we prevent the model from outputting verbs or full sentences.
 
-Specificity: It explicitly asks for specific terms (e.g., "Network Latency") rather than generic ones, ensuring high-quality tagging.
+_Specificity(generality):_  
+It explicitly asks for specific terms (e.g., "Network Latency") rather than generic ones, ensuring high-quality tagging.
 
-Semantic Merging: The prompt instructs the model to compare topics internally and merge synonyms (Cost vs. Price), reducing redundancy before the text is even generated.
+_Semantic Merging(duplicatications):_  
+The prompt instructs the model to compare topics internally and merge synonyms (Cost vs. Price), reducing redundancy before the text is even generated.
 
 **How Quality and Consistency Are Controlled:**  
 _Strict Validation Logic:_  
@@ -139,58 +144,69 @@ It constructs a dynamic fix_prompt that includes:
 - The failed output.
 - Specific Error Messages: It **explicitly** tells the LLM why it failed (e.g., "Output contained duplicate topics" or "These topics were too long"). This "critique-and-refine" approach forces the model to self-correct based on precise feedback.
 
-Examples:
-Example 1: Technical Support Analysis
-Input Text:
+### Examples:
 
-"We are seeing a significant drop in packet delivery speeds during peak hours. The server logs indicate high latency in the US-East region, specifically interacting with the load balancer. Users are complaining about timeouts and slow page loads. We checked the database, but read/write IOPS are within normal limits. It seems to be purely a network layer issue."
+**Example 1:**  
+_Technical Support Analysis
+Input Text:_
 
-Extracted Topics:
+        "We are seeing a significant drop in packet delivery
+        speeds during peak hours. The server logs indicate high
+        latency in the US-East region, specifically interacting
+        with the load balancer. Users are complaining about timeouts and slow page loads.
+        We checked the database,
+        but read/write IOPS are within normal limits. It seems
+        to be purely a network layer issue."
 
-Network Latency
+_Extracted Topics:_
 
-Packet Delivery
+        - Packet Delivery Speeds
+        - High Latency
+        - Load Balancer
+        - User Complaints
+        - Network Layer Issues
+        - Timeout Errors
 
-Load Balancer
+---
 
-Server Timeouts
+**Example 2:**  
+_Health & Nutrition
+Input Text:_
 
-US-East Region
+        "Regular cardiovascular exercise is essential for heart
+         health, but nutrition plays an equally large role.
+         Doctors recommend a diet rich in vegetables and low
+         in saturated fats. Combining running with a balanced
+         diet can significantly lower the risk of chronic
+         disease and improve mental health."
 
-Example 2: Health & Nutrition
-Input Text:
+_Extracted Topics:_
 
-"Regular cardiovascular exercise is essential for heart health, but nutrition plays an equally large role. Doctors recommend a diet rich in vegetables and low in saturated fats. Combining running with a balanced diet can significantly lower the risk of chronic disease and improve mental health."
+        - Cardiovascular Exercise
+        - Heart Health
+        - Nutrition
+        - Balanced Diet
+        - Chronic Disease
+        - Mental Health
 
-Extracted Topics:
+---
 
-Heart Health
+**Example 3:**  
+_Business/Financial
+Input Text:_
 
-Cardiovascular Exercise
+        "The quarterly report shows a 15% increase in
+        operational costs due to supply chain disruptions.
+        However, revenue has grown by 10% thanks to the new
+        subscription model. Investors are concerned about the
+        shrinking profit margins, but the CEO assures that
+        logistics will stabilize by Q3."
 
-Nutrition
+_Extracted Topics:_
 
-Balanced Diet
-
-Chronic Disease
-
-Mental Health
-
-Example 3: Business/Financial
-Input Text:
-
-"The quarterly report shows a 15% increase in operational costs due to supply chain disruptions. However, revenue has grown by 10% thanks to the new subscription model. Investors are concerned about the shrinking profit margins, but the CEO assures that logistics will stabilize by Q3."
-
-Extracted Topics:
-
-Operational Costs
-
-Supply Chain
-
-Revenue Growth
-
-Subscription Model
-
-Profit Margins
-
-Investor Concerns
+        - Operational Costs
+        - Supply Chain Disruptions
+        - Revenue Growth
+        - Subscription Model
+        - Profit Margins
+        - Logistics Stability
