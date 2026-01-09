@@ -1,63 +1,49 @@
 # LLMTextAnalysis
 
-Use Case 1 - Summarize Long Text  
-How the Prompt Was Designed
+### Use Case 1 - Summarize Long Text
 
-The summarize_text function uses a system prompt to instruct the LLM as an expert editor:
+**parameters**:  
+*temperature=0.3,  
+*max_tokens*=300*
 
-It tells the model to produce a clear and concise bulleted summary.
-
-Constraints explicitly specify 3 to 6 bullets to control summary size.
-
-It emphasizes capturing main ideas, key conclusions, and important facts, guiding content selection.
-
-For example, the system prompt includes:
-
-You are an expert editor. Please provide a clear, concise summary of the following text.
-
+**system prompt**:  
+You are an expert editor. Please provide a clear, concise summary of the following text.  
 Constraints:
 
 - The output must be a bulleted list.
 - It must have between 3 and 6 bullet points.
 - Capture the main ideas, key conclusions and Important facts.
 
+**How was the prompt designed:**  
+The summarize_text function uses a system prompt to instruct the LLM as an expert editor:  
+It tells the model to produce a clear and concise bulleted summary.
+Constraints explicitly specify 3 to 6 bullets to control summary size.  
+It emphasizes capturing main ideas, key conclusions, and important facts, guiding content selection.  
 This ensures the LLM focuses on relevant points rather than writing a free-form summary.
 
-How Length and Verbosity Are Controlled
+**How Length and Verbosity Are Controlled:**  
+_Bullet Count:_  
+A regex checks that the summary has 3–6 bullets.  
+If the output has too few or too many bullets, the function retries by sending the previous summary  
+plus the original text back to the model with instructions to fix it.
 
-Bullet Count:
+_Token Limit:_  
+max_tokens=300 - sets a hard upper bound on the response length.
+This helps keep the output manageable, but it may cut the text mid-sentence, so it is not a quality guarantee, only a strict safety limit.
 
-A regex checks that the summary has 3–6 bullets.
-
-If the output has too few or too many bullets, the function retries by sending the previous summary plus the original text back to the model with instructions to fix it.
-
-Token Limit:
-
-max_tokens=300 ensures the output does not exceed a manageable length.
-
-Temperature:
-
+_Temperature_:  
 temperature=0.3 keeps the output deterministic and concise, avoiding overly verbose or creative responses.
 
-Context Feedback Loop:
-
+_Context Feedback Loop:_  
 By including the original text and previous attempt when retrying, the model can adjust its summary while respecting the bullet and length constraints.
 
-This combination of prompt constraints, regex validation, token limit, and low temperature effectively controls both length and verbosity while maintaining clarity.
+This combination of prompt constraints, regex validation,  
+token limit, and low temperature effectively controls both length and verbosity  
+while maintaining clarity.
 
 ## Before:
 
-### System prompt
-
-You are an expert editor. Please provide a clear, concise summary of the following text.
-
-Constraints:
-
-- The output must be a bulleted list.
-- It must have between 3 and 6 bullet points.
-- Capture the main ideas, key conclusions and Important facts.
-
-### Text input:
+#### Text input:
 
         Gabriel de Clieu brought coffee seedlings to Martinique in the Caribbean in 1720.
         Those sprouts flourished and 50 years later there were 18,680 coffee trees in Martinique enabling the spread of coffee cultivation to Saint-Domingue (Haiti), Mexico and other islands of the Caribbean.
