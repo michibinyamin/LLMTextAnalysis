@@ -1,6 +1,6 @@
 # LLMTextAnalysis
 
-### Use Case 1 - Summarize Long Text
+## Use Case 1 - Summarize Long Text
 
 **parameters**:  
 *temperature=0.3,  
