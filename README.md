@@ -6,7 +6,7 @@
 
 I have chosen gpt-4o-mini model for the following reasons:
 
-- _Sufficient Capability:_ The required use cases—summarization , topic extraction , and intent classification —are standard Natural Language Understanding (NLU) tasks.  
+- _Sufficient Capability:_ The required use cases-summarization , topic extraction , and intent classification - are standard Natural Language Understanding (NLU) tasks.  
    They do not require the complex reasoning of flagship models, making gpt-4o-mini more than enough to deliver high-quality results.
 
 - _Cost & Speed:_ It offers the best balance of low latency and cost efficiency, which is critical for a responsive user application where the user expects immediate output.
@@ -411,7 +411,7 @@ Output :
    (for example, exact bullet counts or word limits). This avoids extra manual cleanup later.
 
 - **Self-Correcting Feedback Loop:**  
-   The retry mechanism in the Topic Extraction flow—where formatting errors are fed back to the model—works well in practice.  
+   The retry mechanism in the Topic Extraction flow-where formatting errors are fed back to the model-works well in practice.  
    Most formatting issues are resolved on the second attempt, which noticeably improves reliability.
 
 - **Fast and Cheap:**  
