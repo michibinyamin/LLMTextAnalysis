@@ -183,12 +183,19 @@ def extract_topics(text, api_key):
 def classify_intent(text, api_key):
     categories = ["Technical issue", "Billing question", "Feature request", "Complaint", "General inquiry"]
     system_instruction = f"""
-    Classify the intent of the following user message into exactly one of these categories:
+    ### Role
+    You are an expert customer support analyzer. Your task is to classify the user's message into a specific intent category.
+
+    ### Definition of Categories
+    The message must be classified into exactly one of the following specific intents:
     {', '.join(categories)}
-    
-    If the message is ambiguous or does not fit, reply with "Unclassified".
-    
-    Return ONLY the category name.
+
+    ### Constraints
+    1. **Exclusivity:** Select the single best-fitting category.
+    2. **Fallback:** If the message is ambiguous or does not fit any category, strictly output "Unclassified".
+    3. **Format:** Output ONLY the category name. Do not include introductory text, punctuation, or explanations.
+
+    ### Input Text
     """
     #return get_completion(prompt, api_key)
     response = get_completion(text, system_instruction, api_key, temperature=0.2, max_tokens=50)

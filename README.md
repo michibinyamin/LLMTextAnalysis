@@ -31,17 +31,17 @@ It emphasizes capturing main ideas, key conclusions, and important facts, guidin
 This ensures the LLM focuses on relevant points rather than writing a free-form summary.
 
 **How Length and Verbosity Are Controlled:**  
-_Bullet Count:_  
-A regex checks that the summary has 3–6 bullets.  
-If the output has too few or too many bullets, the function retries by sending the previous summary  
-plus the original text back to the model with instructions to fix it.
-
 _Token Limit:_  
 max_tokens=300 - sets a hard upper bound on the response length.
 This helps keep the output manageable, but it may cut the text mid-sentence, so it is not a quality guarantee, only a strict safety limit.
 
 _Temperature_:  
 temperature=0.3 keeps the output deterministic and concise, avoiding overly verbose or creative responses.
+
+_Bullet Count:_  
+A regex checks that the summary has 3–6 bullets.  
+If the output has too few or too many bullets, the function retries by sending the previous summary  
+plus the original text back to the model with instructions to fix it.
 
 _Context Feedback Loop:_  
 By including the original text and previous attempt when retrying, the model can adjust its summary while respecting the bullet and length constraints.
@@ -128,6 +128,12 @@ _Semantic Merging(duplicatications):_
 The prompt instructs the model to compare topics internally and merge synonyms (Cost vs. Price), reducing redundancy before the text is even generated.
 
 **How Quality and Consistency Are Controlled:**  
+_Token Limit:_  
+max_tokens=150 – Provides a sufficient buffer for a short list (approx. 20–50 words) while strictly preventing long, verbose explanations.
+
+_Temperature:_  
+temperature=0.2 – Ensures high precision and strict adherence to formatting rules (noun phrases), minimizing "creative" or non-standard outputs.
+
 _Strict Validation Logic:_  
 Unlike simple summarization, topic extraction requires strict formatting.  
 The Python code validates the output against three specific rules:
@@ -210,3 +216,64 @@ _Extracted Topics:_
         - Subscription Model
         - Profit Margins
         - Logistics Stability
+
+## Use Case 3 - Classify Intent from User Messages
+
+**parameters:**
+
+_temperature=0.2,  
+max_tokens=50_
+
+system prompt:
+
+    ### Role
+    You are an expert customer support analyzer. Your task is to classify the user's message into a specific intent category.
+
+    ### Definition of Categories
+    The message must be classified into exactly one of the following specific intents:
+    Technical issue, Billing question, Feature request, Complaint, General inquiry
+
+    ### Constraints
+    1. **Exclusivity:** Select the single best-fitting category.
+    2. **Fallback:** If the message is ambiguous or does not fit any category, strictly output "Unclassified".
+    3. **Format:** Output ONLY the category name. Do not include introductory text, punctuation, or explanations.
+
+    ### Input Text
+
+**How was the prompt designed:**  
+The classify_intent function positions the LLM as a "Support Analyzer" with a strict classification mandate.
+
+_Role:_ Defines the context, helping the model understand the nuances of user tone and request type.
+
+_Closed Vocabulary:_ It forces the model to choose from a hardcoded list of 5 specific categories, preventing it from inventing new labels.
+
+_Fallback Mechanism:_ It explicitly instructs the model to use "Unclassified" for ambiguous inputs, preventing forced (and likely incorrect) classifications.
+
+**How Quality and Consistency Are Controlled:**  
+Handling Ambiguity & Low Confidence:
+
+_Prompt Level:_ The system prompt includes a "Fallback" constraint,  
+ordering the model to output "Unclassified" if the input doesn't fit the defined intents.
+
+_Code Level (Confidence Threshold):_ The Python function calculates the average confidence score (derived from logprobs) of the generated response.  
+If the confidence is below 85%, the result is forcibly overridden to "Unclassified." This acts as a safety net for edge cases where the model might "guess" weakly.  
+This is also printed in the UI with the category as a confidence score.
+
+_Strict Output Validation:_ The code cleans the response (strips whitespace and punctuation) and validates that the string strictly matches one of the allowed categories.  
+If the LLM hallucinates a new category, it is automatically rejected and marked "Unclassified".
+
+Token Limit: max_tokens=50 – Since the output is a single label (2-3 words max), a very low token limit prevents the model from explaining its reasoning or adding fluff.
+
+Temperature: temperature=0.2 – Keeps the model deterministic. We want the single most probable label, not a creative interpretation of the user's request.
+
+**Potential Confusion case example:**  
+Input :
+
+        i want a refunt, this is not ok. add a feature that allows users to customize their dashboard.
+
+this is an example where a text can have two meanings - Complaint or Feacher request.  
+output:
+
+        Complaint (Confidence: 86.16%)
+
+two percentages down and it would have been classified as "Unclassified"!

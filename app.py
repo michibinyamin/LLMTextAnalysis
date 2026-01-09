@@ -120,10 +120,8 @@ else:
         else:
             default_text = ""
 
+        # user input box
         # The text area pre-fills with the sample if selected
-        #input_text = st.text_area("Enter text or edit sample:", value=default_text, height=300)
-
-        # Requirement: Short messages (1-3 sentences)
         input_text = st.text_area("Enter a user message:", placeholder="e.g., 'I want to cancel my subscription.'",value=default_text, height=20)
 
         if st.button("Classify"):
