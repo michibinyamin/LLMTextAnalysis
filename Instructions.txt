@@ -29,7 +29,7 @@ following command to install the necessary libraries:
 
 In your terminal, inside the project folder, run:
 
-    streamlit run app.py
+    streamlit run app.py OR python -m streamlit run app.py (if running on windows terminal)
 
 This will automatically open the application in your default web browser 
 (usually at http://localhost:8501).

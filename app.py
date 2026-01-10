@@ -3,13 +3,14 @@ from PyPDF2 import PdfReader
 from llm_utils import summarize_text, extract_topics, classify_intent
 import json
 
+# --- Load Sample Data ---
 def load_samples():
     """Load sample texts from the JSON file."""
     try:
-        with open("samples.JSON", "r") as f:
+        with open("samples.JSON", "r", encoding="utf-8") as f:
             return json.load(f)
     except FileNotFoundError:
-        return {} # Return empty if file is missing
+        return {}
 
 # Load the data once when app starts
 SAMPLES = load_samples()
